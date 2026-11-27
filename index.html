@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PARKMATE – Smart Residential Parking Management System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- ============================================================
+         SIDEBAR NAVIGATION
+         ============================================================ -->
+    <aside class="sidebar" id="appSidebar">
+      <div class="sidebar-header">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="4" fill="none"></rect>
+            <path d="M9 17V7h4.5a3 3 0 0 1 0 6H9"></path>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>PARK<span>MATE</span></h1>
+          <span class="brand-tagline">Smart Residential Parking</span>
+        </div>
+      </div>
+
+      <!-- Community Selector Box -->
+      <div class="community-selector">
+        <div class="community-info">
+          <span class="community-name" id="communityNameDisplay">Skyline Palms Condos</span>
+          <span class="community-stats" id="communitySlotStat">28 Bays • Towers A & B</span>
+        </div>
+        <span class="badge active" style="font-size: 10px;">Live</span>
+      </div>
+
+      <!-- Nav Links -->
+      <nav class="sidebar-nav">
+        <span class="nav-section-title">Core Operations</span>
+        <button class="nav-item active" data-tab="dashboard">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          Dashboard
+        </button>
+        <button class="nav-item" data-tab="map">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+          2D Parking Layout
+          <span class="nav-badge green" id="sidebarAvailBadge">15</span>
+        </button>
+        <button class="nav-item" data-tab="kiosk">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+          Entrance LED Signage
+        </button>
+
+        <span class="nav-section-title">Management</span>
+        <button class="nav-item" data-tab="residents">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          Resident Directory
+        </button>
+        <button class="nav-item" data-tab="vehicles">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="1" y="5" width="22" height="14" rx="2"></rect><circle cx="6" cy="19" r="2"></circle><circle cx="18" cy="19" r="2"></circle><line x1="6" y1="12" x2="18" y2="12"></line></svg>
+          Registered Vehicles
+        </button>
+        <button class="nav-item" data-tab="visitors">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" y1="8" x2="19" y2="14"></line><line x1="22" y1="11" x2="16" y2="11"></line></svg>
+          Visitor Parking
+          <span class="nav-badge amber" id="sidebarVisitorBadge">3</span>
+        </button>
+
+        <span class="nav-section-title">Security & Control</span>
+        <button class="nav-item" data-tab="violations">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          Unauthorized Parking
+          <span class="nav-badge red" id="sidebarViolationsBadge">2</span>
+        </button>
+        <button class="nav-item" data-tab="hardware">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>
+          IoT & Gate Simulator
+        </button>
+        <button class="nav-item" data-tab="settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          Admin & Data Tools
+        </button>
+      </nav>
+
+      <!-- Sidebar Footer -->
+      <div class="sidebar-footer">
+        <button class="quick-kiosk-btn" id="btnLaunchKiosk">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="3" width="20" height="14" rx="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line></svg>
+          Launch Entrance Kiosk
+        </button>
+        <div class="role-pill-widget">
+          <div class="role-avatar" id="sidebarAvatar">A</div>
+          <div class="role-meta">
+            <span class="role-name" id="sidebarRoleName">Estate Admin</span>
+            <span class="role-sub" id="sidebarRoleSub">Full Management Access</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ============================================================
+         MAIN CONTENT SHELL
+         ============================================================ -->
+    <main class="main-wrapper">
+      <!-- Top Navigation Bar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-toggle" id="btnMobileToggle" aria-label="Toggle Navigation">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          </button>
+          <div class="topbar-title-block">
+            <h2 id="topbarPageTitle">Operations Dashboard</h2>
+          </div>
+          <div class="system-status-pill" id="cloudSyncStatusPill">
+            <span class="status-dot"></span>
+            <span id="cloudSyncStatusText">Cloud DB: Live &amp; Synced</span>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <!-- Share Live App Button -->
+          <button class="topbar-btn" id="btnShareCommunity" title="Share Live Community Link" style="width: auto; padding: 0 12px; gap: 6px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: var(--emerald-400);">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+            Share Live App
+          </button>
+          <!-- Global Search -->
+          <div class="global-search-box">
+            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="globalSearchInput" placeholder="Search plate, flat, slot, or name...">
+          </div>
+
+          <!-- Active Role Switcher -->
+          <div class="role-switch-container">
+            <label class="role-switch-label" for="userRoleSelector">Active Role:</label>
+            <select class="role-select-input" id="userRoleSelector">
+              <option value="admin">Administrator</option>
+              <option value="guard">Security Guard</option>
+              <option value="resident">Resident (Flat A-101)</option>
+            </select>
+          </div>
+
+          <button class="topbar-btn" id="btnQuickReset" title="Reset Demo Data">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="1 4 1 10 7 10"></polyline><polyline points="23 20 23 14 17 14"></polyline><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path></svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Content Views Body -->
+      <div class="content-body">
+        
+        <!-- ==========================================
+             VIEW 1: DASHBOARD
+             ========================================== -->
+        <section class="page-view active" id="view-dashboard">
+          <div class="view-header">
+            <div class="view-title-group">
+              <h2>Smart Parking Executive Overview</h2>
+              <p>Real-time slot telemetry, vehicle registry distribution, and active access permits.</p>
+            </div>
+            <div class="view-actions">
+              <button class="btn btn-outline" id="btnDashQuickPass">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" y1="8" x2="19" y2="14"></line></svg>
+                New Visitor Pass
+              </button>
+              <button class="btn btn-danger" id="btnDashReportVio">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path></svg>
+                Report Violation
+              </button>
+            </div>
+          </div>
+
+          <!-- Top Metric Cards -->
+          <div class="stats-grid">
+            <div class="stat-card navy">
+              <div class="stat-header">
+                <span class="stat-title">Total Parking Slots</span>
+                <div class="stat-icon navy">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M9 17V7h4a3 3 0 0 1 0 6H9"></path></svg>
+                </div>
+              </div>
+              <div class="stat-value" id="dashTotalSlots">28</div>
+              <div class="stat-footer">
+                <span>Across 3 levels (B1, B2 & Ground)</span>
+              </div>
+            </div>
+
+            <div class="stat-card green">
+              <div class="stat-header">
+                <span class="stat-title">Available Slots</span>
+                <div class="stat-icon green">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                </div>
+              </div>
+              <div class="stat-value" id="dashAvailableSlots" style="color: var(--emerald-600);">15</div>
+              <div class="stat-footer">
+                <span class="stat-pill success" id="dashAvailPercent">54% Vacant</span>
+                <span>Open for vehicles</span>
+              </div>
+            </div>
+
+            <div class="stat-card red">
+              <div class="stat-header">
+                <span class="stat-title">Occupied Slots</span>
+                <div class="stat-icon red">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="1" y="5" width="22" height="14" rx="2"></rect><circle cx="6" cy="19" r="2"></circle><circle cx="18" cy="19" r="2"></circle></svg>
+                </div>
+              </div>
+              <div class="stat-value" id="dashOccupiedSlots" style="color: var(--rose-600);">11</div>
+              <div class="stat-footer">
+                <span class="stat-pill danger" id="dashOccPercent">39% Occupancy</span>
+                <span>Verified in bays</span>
+              </div>
+            </div>
+
+            <div class="stat-card amber">
+              <div class="stat-header">
+                <span class="stat-title">Visitor / Reserved</span>
+                <div class="stat-icon amber">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                </div>
+              </div>
+              <div class="stat-value" id="dashVisitorSlots" style="color: var(--amber-600);">2</div>
+              <div class="stat-footer">
+                <span class="stat-pill warning" id="dashActiveVisitorsPill">3 Active Guests</span>
+                <span>Ground Bay Hub</span>
+              </div>
+            </div>
+
+            <div class="stat-card cyan">
+              <div class="stat-header">
+                <span class="stat-title">EV Charging Bays</span>
+                <div class="stat-icon cyan">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                </div>
+              </div>
+              <div class="stat-value" id="dashEVSlots" style="color: var(--cyan-600);">5</div>
+              <div class="stat-footer">
+                <span>Equipped with 22kW AC</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Floor Distribution & Live Activity -->
+          <div class="dashboard-grid">
+            <!-- Left: Floor Occupancy Health -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                  Floor Occupancy Breakdown
+                </h3>
+                <button class="btn btn-outline btn-sm" id="btnDashViewFullMap">View Interactive Map</button>
+              </div>
+              <div class="card-body">
+                <div class="floor-bars-list" id="dashFloorBarsContainer">
+                  <!-- Injected via JavaScript -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Real-time Activity Feed -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                  Recent Gate & Bay Activity
+                </h3>
+                <span class="badge info">Realtime</span>
+              </div>
+              <div class="card-body">
+                <div class="activity-feed" id="dashActivityFeed">
+                  <!-- Injected via JavaScript -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             VIEW 2: INTERACTIVE 2D PARKING LOT LAYOUT
+             ========================================== -->
+        <section class="page-view" id="view-map">
+          <div class="view-header">
+            <div class="view-title-group">
+              <h2>2D Interactive Parking Lot Map</h2>
+              <p>Visual bay grid with live status indicators, vehicle plates, EV chargers, and slot reallocation.</p>
+            </div>
+            <div class="view-actions">
+              <button class="btn btn-primary" id="btnAddSlotModalBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                Add Parking Bay
+              </button>
+            </div>
+          </div>
+
+          <div class="parking-map-container">
+            <!-- Filter Bar -->
+            <div class="map-controls-bar">
+              <div class="floor-pills" id="mapFloorFilters">
+                <button class="floor-pill-btn active" data-floor="ALL">All Levels</button>
+                <button class="floor-pill-btn" data-floor="B1">Basement 1 (Tower A & EV)</button>
+                <button class="floor-pill-btn" data-floor="B2">Basement 2 (Tower B)</button>
+                <button class="floor-pill-btn" data-floor="G">Ground Level (Visitor Hub)</button>
+              </div>
+
+              <div class="slot-filters-group">
+                <div class="legend-item"><span class="legend-dot green"></span> Available (<span id="mapCountAvail">0</span>)</div>
+                <div class="legend-item"><span class="legend-dot red"></span> Occupied (<span id="mapCountOcc">0</span>)</div>
+                <div class="legend-item"><span class="legend-dot amber"></span> Reserved (<span id="mapCountRes">0</span>)</div>
+                <div class="legend-item"><span class="legend-dot cyan"></span> EV Charging</div>
+              </div>
+            </div>
+
+            <!-- 2D Floor Plan Grid Container -->
+            <div class="parking-floor-driveway">
+              <div class="driveway-marking">DRIVEWAY LANE • SPEED LIMIT 10 KM/H • KEEP CLEAR</div>
+              <div class="slots-lane-grid" id="slotsGridContainer">
+                <!-- Dynamically populated slot cards -->
+              </div>
+              <div class="driveway-marking">PEDESTRIAN SAFE WALKWAY & FIRE EVACUATION ROUTE</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             VIEW 3: ENTRANCE SIGNAGE / KIOSK DISPLAY SCREEN
+             ========================================== -->
+        <section class="page-view" id="view-kiosk">
+          <div class="view-header">
+            <div class="view-title-group">
+              <h2>Entrance LED Signage Screen</h2>
+              <p>High-contrast digital board designed for mounting at the community gate for approaching drivers.</p>
+            </div>
+            <div class="view-actions">
+              <button class="btn btn-outline" id="btnToggleKioskFullscreen">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+                Toggle Fullscreen Kiosk
+              </button>
+            </div>
+          </div>
+
+          <div class="kiosk-signage-view" id="kioskContainerElement">
+            <div class="kiosk-header-bar">
+              <div class="kiosk-brand">
+                <h2>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <rect x="3" y="3" width="18" height="18" rx="4"></rect>
+                    <path d="M9 17V7h4.5a3 3 0 0 1 0 6H9"></path>
+                  </svg>
+                  PARKMATE LIVE ENTRANCE AVAILABILITY
+                </h2>
+                <p id="kioskCommunitySubtitle">Skyline Palms Condos • Security Gate 1 & 2 Guidance</p>
+              </div>
+              <div class="kiosk-clock-block">
+                <div class="kiosk-clock-time" id="kioskClockDisplay">18:45:00</div>
+                <div class="kiosk-clock-date" id="kioskDateDisplay">Tuesday, 24 Nov 2026</div>
+              </div>
+            </div>
+
+            <!-- Big Stat Numbers -->
+            <div class="kiosk-numbers-grid">
+              <div class="kiosk-big-card highlight">
+                <span class="label">Total Available Slots</span>
+                <span class="big-num" id="kioskTotalAvailable">15</span>
+                <span class="status-sub">PARKING OPEN</span>
+              </div>
+              <div class="kiosk-big-card">
+                <span class="label">Visitor Bays Available</span>
+                <span class="big-num" id="kioskVisitorAvailable" style="color: var(--amber-400);">4</span>
+                <span class="status-sub" style="background: rgba(245, 158, 11, 0.2); color: var(--amber-300);">GROUND FLOOR ONLY</span>
+              </div>
+              <div class="kiosk-big-card occupied-stat">
+                <span class="label">Occupied Bays</span>
+                <span class="big-num" id="kioskTotalOccupied">11</span>
+                <span class="status-sub" style="background: rgba(239, 68, 68, 0.2); color: var(--rose-300);">IN ACTIVE USE</span>
+              </div>
+            </div>
+
+            <!-- Wayfinding Floor Guidance -->
+            <div class="wayfinding-grid">
+              <div class="wayfind-card" id="kioskWayfindB1">
+                <div class="wayfind-info">
+                  <h4>BASEMENT 1 (TOWER A & EV)</h4>
+                  <p><span id="kioskB1Avail">6</span> Available / 10 Bays</p>
+                </div>
+                <div class="wayfind-arrow">TURN RIGHT &rarr;</div>
+              </div>
+              <div class="wayfind-card" id="kioskWayfindB2">
+                <div class="wayfind-info">
+                  <h4>BASEMENT 2 (TOWER B)</h4>
+                  <p><span id="kioskB2Avail">5</span> Available / 10 Bays</p>
+                </div>
+                <div class="wayfind-arrow">RAMP DOWN &darr;</div>
+              </div>
+              <div class="wayfind-card" id="kioskWayfindG">
+                <div class="wayfind-info">
+                  <h4>GROUND (VISITORS)</h4>
+                  <p><span id="kioskGAvail">4</span> Available / 8 Bays</p>
+                </div>
+                <div class="wayfind-arrow">STRAIGHT &uarr;</div>
+              </div>
+            </div>
+
+            <!-- Bottom Ticker -->
+            <div class="kiosk-ticker">
+              <span class="ticker-tag">ANNOUNCEMENT</span>
+              <span id="kioskTickerText">Visitors must register at Security Post. Residents please ensure RFID windshield tags are unobstructed. Unauthorized vehicles will be clamped.</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             VIEW 4: RESIDENT MANAGEMENT
+             ========================================== -->
+        <section class="page-view" id="view-residents">
+          <div class="view-header">
+            <div class="view-title-group">
+              <h2>Resident Directory</h2>
+              <p>Manage resident profiles, contact details, flat allocations, and registered vehicles.</p>
+            </div>
+            <div class="view-actions">
+              <button class="btn btn-primary" id="btnAddResidentModalBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" y1="8" x2="19" y2="14"></line></svg>
+                Register Resident
+              </button>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <div class="table-toolbar">
+              <div class="table-search-input">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="searchResidentsInput" placeholder="Filter residents by flat, name, phone...">
+              </div>
+              <div class="toolbar-stats" id="residentCountBadge">
+                Showing 8 Registered Residents
+              </div>
+            </div>
+
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Flat / Unit</th>
+                  <th>Resident Name</th>
+                  <th>Contact Info</th>
+                  <th>Wing / Tower</th>
+                  <th>Registered Vehicles</th>
+                  <th>Allocated Bays</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="residentsTableBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             VIEW 5: VEHICLE REGISTRATION
+             ========================================== -->
+        <section class="page-view" id="view-vehicles">
+          <div class="view-header">
+            <div class="view-title-group">
+              <h2>Vehicle Registry & Permits</h2>
+              <p>Community database of verified resident vehicles, RFID tags, vehicle types, and assigned slots.</p>
+            </div>
+            <div class="view-actions">
+              <button class="btn btn-primary" id="btnAddVehicleModalBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="1" y="5" width="22" height="14" rx="2"></rect><circle cx="6" cy="19" r="2"></circle><circle cx="18" cy="19" r="2"></circle><line x1="12" y1="9" x2="12" y2="15"></line><line x1="9" y1="12" x2="15" y2="12"></line></svg>
+                Register Vehicle
+              </button>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <div class="table-toolbar">
+              <div class="table-search-input">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="searchVehiclesInput" placeholder="Search license plate, make, flat, RFID...">
+              </div>
+              <div class="toolbar-stats" id="vehicleCountBadge">
+                10 Registered Vehicles
+              </div>
+            </div>
+
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Plate Number</th>
+                  <th>Vehicle Details</th>
+                  <th>Type</th>
+                  <th>Owner / Flat</th>
+                  <th>Assigned Bay</th>
+                  <th>RFID Permit Tag</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="vehiclesTableBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             VIEW 6: VISITOR PARKING
+             ========================================== -->
+        <section class="page-view" id="view-visitors">
+          <div class="view-header">
+            <div class="view-title-group">
+              <h2>Visitor Parking & Gate Passes</h2>
+              <p>Issue temporary parking passes, monitor guest stay duration, allocate dedicated visitor bays, and print parking slips.</p>
+            </div>
+            <div class="view-actions">
+              <button class="btn btn-success" id="btnCreateVisitorPassModal">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" y1="8" x2="19" y2="14"></line></svg>
+                Issue Visitor Pass
+              </button>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <div class="table-toolbar">
+              <div class="table-search-input">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="searchVisitorsInput" placeholder="Search visitor pass, name, flat, vehicle...">
+              </div>
+              <div class="toolbar-stats" id="visitorCountBadge">
+                Showing Visitor Logs
+              </div>
+            </div>
+
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Pass ID</th>
+                  <th>Visitor Name</th>
+                  <th>Vehicle Number</th>
+                  <th>Visiting Flat</th>
+                  <th>Allocated Bay</th>
+                  <th>Check-In Time</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="visitorsTableBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             VIEW 7: UNAUTHORIZED PARKING & VIOLATIONS
+             ========================================== -->
+        <section class="page-view" id="view-violations">
+          <div class="view-header">
+            <div class="view-title-group">
+              <h2>Unauthorized Parking Incident Reports</h2>
+              <p>Track encroached private slots, blocked emergency driveways, overstayed visitors, and disciplinary actions.</p>
+            </div>
+            <div class="view-actions">
+              <button class="btn btn-danger" id="btnReportViolationModal">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                File Violation Report
+              </button>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <div class="table-toolbar">
+              <div class="table-search-input">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="searchViolationsInput" placeholder="Filter reports by slot, plate, reporter...">
+              </div>
+              <div class="toolbar-stats" id="violationCountBadge">
+                Active Incidents
+              </div>
+            </div>
+
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Incident ID</th>
+                  <th>Slot #</th>
+                  <th>Offending Vehicle</th>
+                  <th>Violation Type</th>
+                  <th>Reported By</th>
+                  <th>Status</th>
+                  <th>Reported Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="violationsTableBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             VIEW 8: HARDWARE & IOT SIMULATOR BRIDGE
+             ========================================== -->
+        <section class="page-view" id="view-hardware">
+          <div class="view-header">
+            <div class="view-title-group">
+              <h2>IoT Sensors & Gate Hardware Simulator</h2>
+              <p>Interactive test bench demonstrating hardware adapter interfaces for ANPR cameras, ultrasonic sensors, and boom barriers.</p>
+            </div>
+          </div>
+
+          <!-- Honest Architecture Notice Banner -->
+          <div class="sim-disclaimer-banner">
+            <h3>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+              Hardware Integration Architecture Disclaimer
+            </h3>
+            <p>
+              <strong>Notice:</strong> This web application runs in <em>Simulation Mode</em>. It does not falsely claim active physical camera AI or embedded ultrasonic hardware. 
+              The codebase uses an enterprise-grade <strong>Hardware Gateway Interface</strong> (in <code>js/hardware-sim.js</code>) configured with modular adapter hooks. In production, real IP cameras with RTSP/ONVIF streams, LoRaWAN/MQTT slot sensors, and Wiegand relay controllers bind directly to these identical software event channels.
+            </p>
+          </div>
+
+          <div class="hardware-sim-grid">
+            <!-- ANPR Camera Simulator -->
+            <div class="hardware-card">
+              <div class="hardware-card-header">
+                <h3>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                  Simulate License Plate Capture (ANPR Webhook)
+                </h3>
+                <span class="badge active">Camera Gate 1</span>
+              </div>
+              <div class="hardware-card-body">
+                <p style="font-size: 13px; color: var(--navy-600); margin-bottom: 12px;">
+                  Simulate an incoming vehicle at the North Gate. The system looks up resident database and active visitor passes to grant or deny barrier opening.
+                </p>
+                <div class="form-group">
+                  <label class="form-label" for="simPlateSelector">Choose Sample Vehicle or Type Custom:</label>
+                  <select class="form-control" id="simPlateSelector">
+                    <option value="KA-01-MJ-2020">KA-01-MJ-2020 (Dr. Vikram Malhotra - Flat A-101 [Resident])</option>
+                    <option value="KA-51-Z-9901">KA-51-Z-9901 (Amit Saxena - Pass VP-8491 [Active Visitor])</option>
+                    <option value="MH-02-CJ-9912">MH-02-CJ-9912 (Unregistered / Offending Vehicle)</option>
+                    <option value="CUSTOM">Type custom license plate...</option>
+                  </select>
+                </div>
+                <div class="form-group" id="simCustomPlateGroup" style="display: none;">
+                  <label class="form-label" for="simCustomPlateInput">Custom Plate Number:</label>
+                  <input type="text" class="form-control" id="simCustomPlateInput" placeholder="e.g. DL-04-XX-1234">
+                </div>
+                <button class="btn btn-primary" id="btnSimulateScanPlate">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  Trigger ANPR Gate Scan
+                </button>
+
+                <!-- Real Device Camera Scanner Hook -->
+                <div style="margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--navy-300);">
+                  <label class="form-label" style="display: flex; align-items: center; justify-content: space-between;">
+                    <span style="display: flex; align-items: center; gap: 6px;">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                      Real Device Camera / Live Optical Scanner:
+                    </span>
+                    <span class="badge info">HTML5 Live Video</span>
+                  </label>
+                  <div style="display: flex; gap: 8px;">
+                    <button class="btn btn-outline btn-sm" id="btnStartRealCamera">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                      Open Device Camera
+                    </button>
+                    <button class="btn btn-danger btn-sm" id="btnStopRealCamera" style="display: none;">Stop Camera</button>
+                  </div>
+                  <div id="liveCameraContainer" style="display: none; margin-top: 10px; position: relative; border-radius: var(--radius-md); overflow: hidden; background: #000;">
+                    <video id="liveCameraVideo" autoplay playsinline style="width: 100%; max-height: 220px; object-fit: cover;"></video>
+                    <div style="position: absolute; inset: 20px; border: 2px dashed var(--emerald-400); border-radius: 8px; pointer-events: none; display: flex; align-items: center; justify-content: center;">
+                      <span style="background: rgba(0,0,0,0.7); color: #fff; padding: 4px 10px; font-size: 11px; border-radius: 4px; font-weight: 600;">ALIGN LICENSE PLATE HERE</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="simScanResultBox" style="margin-top: 14px; display: none;"></div>
+              </div>
+            </div>
+
+            <!-- Boom Barrier Visual Gate -->
+            <div class="hardware-card">
+              <div class="hardware-card-header">
+                <h3>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="5" y1="12" x2="19" y2="12"></line><line x1="12" y1="5" x2="19" y2="12"></line><line x1="12" y1="19" x2="19" y2="12"></line></svg>
+                  North Gate Boom Barrier Relay
+                </h3>
+                <span class="badge info">Relay Modbus #01</span>
+              </div>
+              <div class="hardware-card-body">
+                <div class="barrier-visual-box">
+                  <div class="barrier-indicator-light closed" id="barrierIndicatorLight">GATE CLOSED</div>
+                  <div class="barrier-pillar"></div>
+                  <div class="barrier-arm" id="barrierArmVisual"></div>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                  <button class="btn btn-success" id="btnBarrierOpen">Pulse Open (Auto 5s)</button>
+                  <button class="btn btn-danger" id="btnBarrierClose">Force Close</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Ultrasonic Bay Sensor Simulator -->
+            <div class="hardware-card">
+              <div class="hardware-card-header">
+                <h3>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                  Ultrasonic Slot Sensor Telemetry (MQTT)
+                </h3>
+                <span class="badge info">Bay Sensors</span>
+              </div>
+              <div class="hardware-card-body">
+                <p style="font-size: 13px; color: var(--navy-600); margin-bottom: 12px;">
+                  Simulate an ultrasonic proximity transceiver detecting vehicle presence in a specific bay.
+                </p>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" for="simSlotSelect">Select Bay:</label>
+                    <select class="form-control" id="simSlotSelect"></select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="simSlotStateSelect">New Sensor State:</label>
+                    <select class="form-control" id="simSlotStateSelect">
+                      <option value="occupied">Occupied (Distance &lt; 50cm)</option>
+                      <option value="available">Available (Distance &gt; 250cm)</option>
+                    </select>
+                  </div>
+                </div>
+                <button class="btn btn-primary" id="btnSimulateSensorTrigger">Publish MQTT Sensor Event</button>
+              </div>
+            </div>
+
+            <!-- Telemetry Diagnostic Terminal -->
+            <div class="hardware-card">
+              <div class="hardware-card-header">
+                <h3>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+                  Live IoT Telemetry Terminal
+                </h3>
+                <span class="badge active">Live Stream</span>
+              </div>
+              <div class="hardware-card-body" style="padding: 12px;">
+                <div class="telemetry-terminal" id="telemetryConsole">
+                  <!-- Lines injected dynamically -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             VIEW 9: ADMIN & SYSTEM DATA TOOLS
+             ========================================== -->
+        <section class="page-view" id="view-settings">
+          <div class="view-header">
+            <div class="view-title-group">
+              <h2>System Administration & Data Tools</h2>
+              <p>Configure residential community properties, backup database state, and import demo scenarios.</p>
+            </div>
+          </div>
+
+          <div class="dashboard-grid">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Community Configuration</h3>
+              </div>
+              <div class="card-body">
+                <form id="communityConfigForm">
+                  <div class="form-group">
+                    <label class="form-label" for="cfgCommunityName">Residential Community Name:</label>
+                    <input type="text" class="form-control" id="cfgCommunityName" value="Skyline Palms Condominiums">
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label" for="cfgTotalTowers">Towers / Blocks:</label>
+                      <input type="text" class="form-control" id="cfgTotalTowers" value="Tower A, Tower B">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="cfgGuardPhone">Security Gate Helpline:</label>
+                      <input type="text" class="form-control" id="cfgGuardPhone" value="+91 80 4455 6677">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="cfgVisitorRule">Visitor Max Free Duration (Hours):</label>
+                    <input type="number" class="form-control" id="cfgVisitorRule" value="3" min="1" max="24">
+                  </div>
+                  <button type="button" class="btn btn-primary" id="btnSaveConfig">Save Community Settings</button>
+                </form>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Database Export & Reset</h3>
+              </div>
+              <div class="card-body">
+                <p style="font-size: 13px; color: var(--navy-600); margin-bottom: 16px;">
+                  All application state is stored locally via HTML5 <code>localStorage</code>. You can back up or restore state as JSON at any time.
+                </p>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                  <button class="btn btn-outline" id="btnExportJSON">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    Export Database (JSON Backup)
+                  </button>
+                  <button class="btn btn-danger" id="btnResetAllData">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="1 4 1 10 7 10"></polyline><polyline points="23 20 23 14 17 14"></polyline><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path></svg>
+                    Reset to Default Demo State
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ============================================================
+       MODALS
+       ============================================================ -->
+
+  <!-- Modal 1: Slot Details & Manage Slot -->
+  <div class="modal-overlay" id="modalSlotDetails">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title" id="slotModalTitle">Manage Parking Bay B1-01</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="slotDetailStatus">Slot Status:</label>
+          <select class="form-control" id="slotDetailStatus">
+            <option value="available">Available (Green - Vacant)</option>
+            <option value="occupied">Occupied (Red - In Use)</option>
+            <option value="reserved">Reserved (Amber)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="slotDetailFlat">Allocated Flat Number:</label>
+          <input type="text" class="form-control" id="slotDetailFlat" placeholder="e.g. A-101 or Visitor">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="slotDetailVehicle">Assigned Vehicle Plate (Optional):</label>
+          <input type="text" class="form-control" id="slotDetailVehicle" placeholder="e.g. KA-01-MJ-2020">
+        </div>
+        <div class="form-group">
+          <label class="form-label">EV Charging Capability:</label>
+          <label style="display: flex; align-items: center; gap: 8px; font-weight: 500;">
+            <input type="checkbox" id="slotDetailEV"> Has Dedicated 22kW EV Charger
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline modal-close-btn">Cancel</button>
+        <button class="btn btn-primary" id="btnSaveSlotChanges">Update Bay</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: Add New Parking Slot -->
+  <div class="modal-overlay" id="modalAddSlot">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Add New Parking Bay</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="addSlotForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="newSlotId">Slot Code / Number *</label>
+              <input type="text" class="form-control" id="newSlotId" placeholder="e.g. B1-11 or G-09" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="newSlotLevel">Level / Floor *</label>
+              <select class="form-control" id="newSlotLevel" required>
+                <option value="B1">Basement 1 (Tower A)</option>
+                <option value="B2">Basement 2 (Tower B)</option>
+                <option value="G">Ground Level (Visitor Bay)</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="newSlotType">Bay Type *</label>
+              <select class="form-control" id="newSlotType" required>
+                <option value="car">Car / SUV</option>
+                <option value="bike">Motorcycle / Scooter</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="newSlotFlat">Allocated Flat (Optional)</label>
+              <input type="text" class="form-control" id="newSlotFlat" placeholder="e.g. A-204">
+            </div>
+          </div>
+          <div class="form-group">
+            <label style="display: flex; align-items: center; gap: 8px; font-weight: 500;">
+              <input type="checkbox" id="newSlotIsEV"> Enable EV Fast Charger
+            </label>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline modal-close-btn">Cancel</button>
+        <button class="btn btn-primary" id="btnSubmitNewSlot">Create Parking Bay</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 3: Register New Resident -->
+  <div class="modal-overlay" id="modalAddResident">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Register Resident</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="addResidentForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="resFlat">Flat Number *</label>
+              <input type="text" class="form-control" id="resFlat" placeholder="e.g. A-501" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="resWing">Wing / Tower *</label>
+              <select class="form-control" id="resWing" required>
+                <option value="Tower A">Tower A</option>
+                <option value="Tower B">Tower B</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="resName">Resident Full Name *</label>
+            <input type="text" class="form-control" id="resName" placeholder="e.g. Anand & Ritu Varma" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="resPhone">Contact Phone *</label>
+              <input type="tel" class="form-control" id="resPhone" placeholder="+91 98000 11223" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="resEmail">Email Address</label>
+              <input type="email" class="form-control" id="resEmail" placeholder="anand@example.com">
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline modal-close-btn">Cancel</button>
+        <button class="btn btn-primary" id="btnSubmitNewResident">Save Resident</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 4: Register New Vehicle -->
+  <div class="modal-overlay" id="modalAddVehicle">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Register Vehicle</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="addVehicleForm">
+          <div class="form-group">
+            <label class="form-label" for="vehPlate">Registration License Plate *</label>
+            <input type="text" class="form-control" id="vehPlate" placeholder="e.g. KA-03-HA-8899" required style="text-transform: uppercase;">
+            <span class="form-hint">Format: State-District-Series-Number</span>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="vehType">Vehicle Type *</label>
+              <select class="form-control" id="vehType" required>
+                <option value="car">Car (Sedan/SUV/Hatchback)</option>
+                <option value="bike">Motorcycle / Scooter</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="vehIsEV">Power / Fuel</label>
+              <select class="form-control" id="vehIsEV">
+                <option value="false">Petrol / Diesel / Hybrid</option>
+                <option value="true">Electric Vehicle (EV)</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="vehMake">Vehicle Model & Color *</label>
+            <input type="text" class="form-control" id="vehMake" placeholder="e.g. Hyundai Creta (Polar White)" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="vehFlat">Owner Flat Number *</label>
+              <select class="form-control" id="vehFlat" required></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="vehSlot">Assign Parking Bay</label>
+              <select class="form-control" id="vehSlot"></select>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline modal-close-btn">Cancel</button>
+        <button class="btn btn-primary" id="btnSubmitNewVehicle">Register Vehicle</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 5: Create Visitor Pass -->
+  <div class="modal-overlay" id="modalCreateVisitor">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Issue Temporary Visitor Parking Pass</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="visitorPassForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="visName">Visitor Name *</label>
+              <input type="text" class="form-control" id="visName" placeholder="e.g. Rahul Verma" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="visPhone">Visitor Mobile *</label>
+              <input type="tel" class="form-control" id="visPhone" placeholder="+91 98111 22334" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="visPlate">Vehicle License Plate *</label>
+              <input type="text" class="form-control" id="visPlate" placeholder="e.g. KA-04-MZ-1122" required style="text-transform: uppercase;">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="visType">Vehicle Type *</label>
+              <select class="form-control" id="visType">
+                <option value="car">Car</option>
+                <option value="bike">Two-Wheeler</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="visFlat">Visiting Flat *</label>
+              <select class="form-control" id="visFlat" required></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="visSlot">Allocate Visitor Bay</label>
+              <select class="form-control" id="visSlot"></select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="visDuration">Expected Duration (Hours):</label>
+            <input type="number" class="form-control" id="visDuration" value="2" min="1" max="12">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline modal-close-btn">Cancel</button>
+        <button class="btn btn-success" id="btnSubmitVisitorPass">Generate & Print Pass</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 6: Printable Visitor Digital Slip -->
+  <div class="modal-overlay" id="modalVisitorSlip">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Visitor Parking Slip</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="visitor-pass-modal-slip" id="visitorSlipPrintContent">
+          <div class="slip-header">
+            <h3>PARKMATE VISITOR PASS</h3>
+            <div class="slip-passcode" id="slipPasscode">PM-912</div>
+            <span class="badge success" style="margin-top: 4px;">AUTHORIZED ENTRY</span>
+          </div>
+          <div class="slip-details-grid">
+            <div class="slip-item">
+              <span class="label">Visitor Name</span>
+              <span class="val" id="slipVisitorName">Amit Saxena</span>
+            </div>
+            <div class="slip-item">
+              <span class="label">Vehicle Plate</span>
+              <span class="val" id="slipVehiclePlate">KA-51-Z-9901</span>
+            </div>
+            <div class="slip-item">
+              <span class="label">Visiting Flat</span>
+              <span class="val" id="slipVisitingFlat">Flat A-101</span>
+            </div>
+            <div class="slip-item">
+              <span class="label">Assigned Bay</span>
+              <span class="val" id="slipBayId" style="color: var(--emerald-600);">G-01</span>
+            </div>
+            <div class="slip-item">
+              <span class="label">Check-In Time</span>
+              <span class="val" id="slipCheckIn">17:45</span>
+            </div>
+            <div class="slip-item">
+              <span class="label">Permitted Until</span>
+              <span class="val" id="slipValidUntil">19:45 (2h)</span>
+            </div>
+          </div>
+          <div class="slip-barcode"></div>
+          <div class="slip-footer">
+            Display this slip visibly on your dashboard.<br>
+            Skyline Palms Security Desk Helpline: +91 80 4455 6677
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline modal-close-btn">Close</button>
+        <button class="btn btn-primary" onclick="window.print()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+          Print Slip
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 7: Report Unauthorized Parking Violation -->
+  <div class="modal-overlay" id="modalReportViolation">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Report Unauthorized Parking</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="reportViolationForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="vioSlot">Encroached Slot # *</label>
+              <select class="form-control" id="vioSlot" required></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="vioOffendingPlate">Offending Vehicle Plate *</label>
+              <input type="text" class="form-control" id="vioOffendingPlate" placeholder="e.g. MH-02-CJ-9912" required style="text-transform: uppercase;">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="vioType">Violation Category *</label>
+            <select class="form-control" id="vioType" required>
+              <option value="Unauthorized Slot Occupancy">Unauthorized Slot Occupancy (Parked in Private Bay)</option>
+              <option value="Emergency Zone Obstruction">Emergency Zone / Driveway Obstruction</option>
+              <option value="EV Charging Abuse">Non-EV Vehicle Blocking EV Charger</option>
+              <option value="Overstayed Visitor">Overstayed Visitor Beyond Permitted Hours</option>
+              <option value="Improper Bay Alignment">Improper Parking (Crossing Bay Lines)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="vioDesc">Description & Details *</label>
+            <textarea class="form-control" id="vioDesc" rows="3" placeholder="Describe the issue, car color/make, and impact on resident..." required></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="vioSeverity">Incident Severity:</label>
+            <select class="form-control" id="vioSeverity">
+              <option value="Medium">Medium (Courtesy Notice / Call)</option>
+              <option value="High">High (Immediate Guard Dispatch)</option>
+              <option value="Critical">Critical (Wheel Clamp & Tow Request)</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline modal-close-btn">Cancel</button>
+        <button class="btn btn-danger" id="btnSubmitViolation">File Violation Report</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 8: Share Community Live Sync Room -->
+  <div class="modal-overlay" id="modalShareCommunity">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Share Live Community App</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 13px; color: var(--navy-600); margin-bottom: 16px;">
+          This application connects to a <strong>live cloud database</strong>. Any changes you make (adding visitors, parking cars, or reporting violations) automatically update across all connected devices in real time.
+        </p>
+
+        <div class="form-group">
+          <label class="form-label" for="shareLiveUrlInput">Shareable App Link:</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" class="form-control" id="shareLiveUrlInput" readonly style="background: var(--navy-50); font-family: var(--font-mono); font-size: 12px;">
+            <button class="btn btn-primary" id="btnCopyShareUrl" style="flex-shrink: 0;">Copy Link</button>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 18px;">
+          <label class="form-label" for="syncRoomIdInput">Community Cloud Sync Room ID:</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" class="form-control" id="syncRoomIdInput" placeholder="e.g. emerald_bay_residency" style="font-family: var(--font-mono); font-size: 12px;">
+            <button class="btn btn-outline" id="btnSwitchRoomId" style="flex-shrink: 0;">Switch Room</button>
+          </div>
+          <span class="form-hint">Tip: Share the exact same Room ID with your society members or guards to synchronize their screens.</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary modal-close-btn">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Scripts -->
+  <script src="js/store.js"></script>
+  <script src="js/hardware-sim.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
